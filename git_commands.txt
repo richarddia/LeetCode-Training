@@ -1,0 +1,5 @@
+git remote add origin <URL> 
+git push origin master
+
+// check alias
+git remote -v
