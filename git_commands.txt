@@ -1,3 +1,31 @@
+tutorial videos
+https://www.youtube.com/watch?v=QV0kVNvkMxc&list=PL4cUxeGkcC9goXbgTDQ0n_4TBzOO0ocPR&index=8
+
+git status
+git log --oneline
+
+//git checkout
+git checkout <commit#>
+git checkout -b <new_branch_name>
+//git revert, when you revert, it automatically commits
+git revert <commit#>
+//git reset
+never use this. You will get fucked up.
+
+//git branches
+//show all branches
+git branch -a 
+//create a new branch
+git branch <new_branch_name>
+git checkout <new_branch_name>
+
+//the above 2 commands could be merged into 1 command
+git branch -b <new_branch_name>
+
+//delete branch -d works only the branch has been merged
+git branch -d <brach_to_be_deleted>
+git branch -D <brach_to_be_deleted>
+
 git remote add origin <URL> 
 git push origin master
 
