@@ -2,7 +2,7 @@ class Solution {
 public:
     int checkRecord(int n) {
         // 动态规划
-        // 符合条件的序列有4种情况 有没有A，结尾是不是L
+        // 符合条件的序列有6种情况 有没有A，结尾0/1/2个L
         // dp[i][k]表示长i天的record符合情况k的有多少
         // k = 0  无A,结尾也不是L
         // k = 1  无A,结尾1个L
