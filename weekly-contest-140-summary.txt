@@ -1,0 +1,164 @@
+这次周赛当天有事，没有按时参加。
+周日上午自己进行了一次virtual contest，90分钟完成三题
+自己感觉发挥的不是很好，特别是第二题和第三题
+第二题其实抄了以前permutation的一个答案，改动了一下过了
+第三题在做的时候思路不够清晰，代码写了又删除还WA了一次，有的情况没考虑考。
+总体来说正常发挥，自己的正常水平也就是90分钟三道题，第四题和以前的一
+道题目很像，但是自己做的时候还是想不出思路，试了一个贪婪算法还是错的。
+第四题基本上没有好的思路，到最后也还是没做出来
+
+
+Q1
+这个题用py写的，不知道怎么在cpp里面分割字符串(split)，cpp里没有这个函数
+后面看过答案，学习一下用stringstream，本题的目标达到。
+
+class Solution {
+public:
+    vector<string> findOcurrences(string text, string first, string second) {
+        vector<string> res;
+        vector<string> words;
+        string word;
+        stringstream ss( text );
+        while ( ss >> word ) {
+            words.push_back( word );
+        }
+        for ( int i = 0; i < words.size() - 2; ++i ) {
+            if ( words[i] == first && words[i+1] == second ) res.push_back( words[i+2] );
+        }
+        return res;
+    }
+};
+
+Q2
+这个题看到length <= 7就直接暴力了，同时借助了从郭晓铮那里借来的算法
+顺便复习一下n!计算全排列的算法
+
+class Solution {
+public:
+    int numTilePossibilities(string tiles) {
+        unordered_set<string> res;
+        dfs(res, tiles, 0);
+        return res.size();
+    }
+
+    //核心思想是每一个数字在每一个位置都要轮一遍
+    void dfs(unordered_set<string>& res, string& nums, int pos){
+        if ( pos > 0 ) res.insert(nums.substr(0, pos));
+        vector<bool> visited( 26, false );
+        for(int i=pos; i<nums.size(); ++i){
+            if ( visited[nums[i]-'A'] == true ) continue;
+            visited[nums[i]-'A'] = true;
+            swap(nums[pos], nums[i]);
+            dfs(res, nums, pos+1);
+            swap(nums[pos], nums[i]);
+        }
+    }
+
+    void swap(char& a, char& b){
+        char temp = a;
+        a = b;
+        b = temp;
+    }
+};
+
+Q3
+在这道题上面浪费了很多时间，一开始在犹豫到底要return一个int还是TreeNode*
+如果return int, sum 传下去又传上来，很折腾
+
+class Solution {
+public:
+    TreeNode* sufficientSubset(TreeNode* root, int limit) {
+        if ( root == nullptr ) return root;
+        int res = helper(root, 0, limit);
+        if ( res < limit ) return nullptr;
+        return root;
+    }
+    
+    int helper(TreeNode* root, int sum, int limit) {
+        if ( root == nullptr ) return INT_MIN;
+        if ( root -> left == nullptr && root -> right == nullptr ) return sum + root -> val;
+        int l = helper(root -> left, sum + root -> val, limit);
+        int r = helper(root -> right, sum + root -> val, limit);
+        if ( l < limit ) root -> left = nullptr;
+        if ( r < limit ) root -> right = nullptr;
+        return max(l, r);
+    }
+};
+
+此外一个浪费时间的地方就是关于nullptr的处理，按照平时的套路，在dfs里面要考虑
+输入是nullptr的情况，这道题会有情况是左边节点是nullptr但是右边节点不是nullptr，
+后面参考了lee215的代码，不得不说人家这个代码完美避开了困扰我的各种坑，
+有一个点值得复习，就是如何判断TreeNode左孩子右孩子都是nullptr，可以直接用if ( root -> left == root -> right)
+很久之前学过这个套路，忘记了，在这里提醒自己复习一下
+
+class Solution {
+public:
+    TreeNode* sufficientSubset(TreeNode* root, int limit) {
+        if ( root -> left == root -> right ) { //一步就可以判断出是不是叶子节点
+            if ( root -> val < limit ) return nullptr;
+            else return root;
+        }
+        
+        if ( root -> left != nullptr ) {
+            root -> left = sufficientSubset( root -> left, limit - root -> val );
+        }
+        
+        if ( root -> right != nullptr ) {
+            root -> right = sufficientSubset( root -> right, limit - root -> val );
+        }
+        
+        if ( root -> left == root -> right ) return nullptr; // 
+        return root;
+    }
+};
+
+lee215的代码返回的是TreeNode*，所以不用额外再写一个helper function. 传值上也有讲究，
+他选择了改变limit，我选择的是把sum和limit一起传下去，多传了一个参数，而且还必须等子节点
+return的结果出来了以后才能决定当前节点要不要被删除。那个sum是传下去又return上来。
+这个题可以复习的地方很多。特别是对于nullptr的处理方法，值得学习。
+
+Q4
+这个题上来就不会做，一点想法都没有，后面勉强想了一个贪婪算法，不靠谱。感觉出以前做过类似的题，知道要用
+一个东西来存某个数后面还有没有存在。但是思路没有打通，最后写出来一个错误答案。错的很离谱。
+看过别人的接单之后，发现着个题目就是316原题，时间太长，记不起来了。
+
+顺便复习一下316。
+
+class Solution {
+public:
+    string smallestSubsequence(string text) {
+        string st = "";
+        int cnt[26] = {0};
+        bool inStack[26];
+        memset(inStack, 0, sizeof(inStack));
+        for ( auto& c : text ) ++cnt[c-'a'];
+        for ( int i = 0; i < text.length(); ++i ) {
+            char c = text[i];
+            --cnt[c-'a'];
+            if ( inStack[c-'a'] ) continue;
+            
+            while ( !st.empty() && c < st.back() && cnt[st.back()-'a'] > 0 ) {
+                inStack[st.back()-'a'] = false;
+                st.pop_back();
+            }
+            st.push_back(c);
+            inStack[c-'a'] = true;
+        }
+        return st;
+    }
+};
+
+后面要想一下用n^2复杂度怎么做
+
+从群里还得到另外一个类似的题目
+给一个string，求长度为k且lexicographically最小的subsequence，还没想出来，后面想到了再更新
+
+
+
+
+
+
+
+
+
+
