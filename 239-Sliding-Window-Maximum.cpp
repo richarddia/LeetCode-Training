@@ -34,3 +34,39 @@ public:
 		return res;
     }
 };
+
+// 补充一个解法，感谢haitao7提供idea
+
+class Solution {
+public:
+    vector<int> maxSlidingWindow(vector<int>& nums, int k) {
+        // 膜 haitao7
+        // 思路:k个数字为一个区间，对每一个区间求premax和postmax
+        // [1,3,-1,-3,5,3,6,7]
+        //    <-  |->
+        //    post|pre
+        
+        int n = nums.size();
+        vector<int> res;
+        if ( n == 0 ) return res;
+        vector<int> premax( n, 0 );
+        vector<int> postmax( n, 0 );
+        for ( int i = 0; i < n; ++i ) {
+            if ( i % k == 0 ) premax[i] = nums[i];
+            else premax[i] = max( premax[i-1], nums[i] );
+        }
+        postmax[n-1] = nums[n-1];
+        for ( int i = n - 2; i >= 0; --i ) {
+            if ( i % k == k - 1 ) postmax[i] = nums[i];
+            else postmax[i] = max( postmax[i+1], nums[i] );
+        }
+        int pt1 = 0; int pt2 = k - 1;
+        
+        while ( pt2 < n ) {
+            res.push_back( max( postmax[pt1], premax[pt2] ) );
+            ++pt1;
+            ++pt2;
+        }
+        return res;
+    }
+};
