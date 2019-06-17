@@ -1,0 +1,229 @@
+6月15日进行了contest 141，写出三题，算是正常发挥。第四题很可惜，思路想到了，
+写出了第一版代码，因为字符串叠加TLE，代码修改过后因为一个小错误一直得不到正确结果，
+比赛时间到了。
+
+这次周赛第二题和第三题做的不是很顺利，尤其第三题，错了3次。
+总结的地方主要有两点，一个是c++里带comparator的排序问题
+还有一个是BFS写起来不熟练，二维矩阵里往8个方向延伸。
+
+1089 duplicate zeros
+题目大意：给一个数组，所有的0出现两遍，其他数字出现一遍，仍然按原来顺序，新数组覆盖原数组，超出部分砍掉
+思路:做一份拷贝，一个循环解决问题
+这个题简单，没什么好说的
+
+1090. Largest Values From Labels
+题目大意:给一组values，每个value还有一个label对应，给了一个num_wanted，要求找出不超过这么多个value让
+它们加起来和最大，同时还要满足同一个label不能超过use_limit个
+
+思路：贪婪算法，把这些value按照label分成组，每组里挑出前use_limit个最大的，
+再从所有挑出来的这些value里面选出前num_wanted个最大的加起来就可以
+
+这个题目在比赛的时候是用py写的，没想好怎么用cpp来写，忘了怎么用lambda排序了
+后面自己写了一个cpp，用排序的
+
+class Solution {
+public:
+    
+    int largestValsFromLabels(vector<int>& values, vector<int>& labels, int num_wanted, int use_limit) {
+        int n = values.size();
+        vector<pair<int, int>> pairs;
+        for ( int i = 0; i < n; ++i ) {
+            pairs.push_back( make_pair( values[i], labels[i] ) );
+        }
+        sort( pairs.begin(), pairs.end(), []( const pair<int, int>& a, const pair<int, int>& b ){
+            return a.first > b.first;
+        } );
+        unordered_map<int, int> labelFreq;
+        int res = 0;
+        for ( int i = 0; i < n && num_wanted > 0; ++i ) {
+            pair<int, int> p = pairs[i];
+            if ( labelFreq[p.second] >= use_limit ) continue;
+            res += p.first;
+            ++labelFreq[p.second];
+            --num_wanted;
+        }
+        return res;
+    }
+};
+
+这道题是要找最大的values的和，priority queue也是一个好的选择，cpp里pq默认是max heap，
+不需要写comparator
+看了suzyzhang的答案进行改进
+
+class Solution {
+public:
+    
+    int largestValsFromLabels(vector<int>& values, vector<int>& labels, int num_wanted, int use_limit) {
+        int n = values.size();
+        using P = pair<int, int>;
+        priority_queue<P> queue;
+        for ( int i = 0; i < n; ++i ) {
+            queue.push( make_pair( values[i], labels[i] ) );
+        }
+        unordered_map<int, int> counter;
+        int res = 0;
+        while ( num_wanted > 0 && !empty(queue) ) {
+            if ( counter[queue.top().second] != use_limit ) {
+                ++counter[queue.top().second];
+                res += queue.top().first;
+                --num_wanted;
+            }
+            queue.pop();
+        }
+        return res;
+    }
+};
+
+第三题
+1091. Shortest Path in Binary Matrix
+BFS遍历矩阵
+比赛的时候在这个题目上浪费的很长时间，一方面是读题，再一个就是写bfs不够熟练，犹犹豫豫，在考虑防止回头的方面不知道该怎么办
+强化一下cpp写bfs的方法
+
+从大神代码中学到一个技巧，对于走9宫格的，可以直接两个循环，走四个方向的就列举一下吧
+
+class Solution {
+public:
+    int shortestPathBinaryMatrix(vector<vector<int>>& grid) {
+        int n = grid.size();
+        if ( grid[0][0] == 1 || grid[n-1][n-1] == 1 ) return -1;
+        queue<pair<int, int>> q;
+        q.push(make_pair(0, 0));
+        //进队列就置成1
+        grid[0][0] = 1;
+
+        int res = 1;
+        while ( !q.empty() ) {
+            int sz = q.size();
+            for ( int i = 0; i < sz; ++i ) {
+                pair<int, int> cur = q.front();
+                q.pop();
+                if ( cur.first == n - 1 && cur.second == n - 1 ) return res;
+                for ( int i = -1; i <= 1; ++i ) {
+                    for ( int j = -1; j <= 1; ++j ) {
+                        int x = cur.first + i;
+                        int y = cur.second + j; 
+                        if ( x >= 0 && x < n && y >= 0 && y < n && grid[x][y] == 0 ) {
+                            grid[x][y] = 1;
+                            q.push( make_pair( x, y ) );
+                        }
+                    }
+                }
+            }
+            ++res;
+        }
+        return -1;
+    }
+};
+
+第四题
+1092. Shortest Common Supersequence
+这个题到了要存parent pointer，不过实现起来太复杂了
+直接上两个大神的答案
+
+suzy zhang
+
+用f[i][j]存parent pointer 
+
+class Solution {
+public:
+    string shortestCommonSupersequence(string str1, string str2) {
+        int m = str1.size(); int n = str2.size();
+        vector<vector<int>> dp( m+1, vector<int>( n+1, m + n) );
+        vector<vector<int>> f( m+1, vector<int>( n+1, 0 ) );
+        dp[0][0] = 0;
+        f[0][0] = -1;
+        for ( int i = 1; i <= m; ++i ) {
+            dp[i][0] = i;
+            f[i][0] = 1;
+        }
+        for ( int j = 1; j <= n; ++j ) {
+            dp[0][j] = j;
+            f[0][j] = 2;
+        }
+        for ( int i = 1; i <= m; ++i ) {
+            for ( int j = 1; j <= n; ++j ) {
+                if ( str1[i-1] == str2[j-1] ) {
+                    dp[i][j] = dp[i-1][j-1];
+                    f[i][j] = 3;
+                } else {
+                    if ( dp[i-1][j] + 1 < dp[i][j] ) {
+                        dp[i][j] = dp[i-1][j] + 1;
+                        f[i][j] = 1;
+                    }
+                    if ( dp[i][j-1] + 1 < dp[i][j] ) {
+                        dp[i][j] = dp[i][j-1] + 1;
+                        f[i][j] = 2;
+                    }
+                }
+            }
+        }
+        string res;
+        int x = m, y = n;
+        while ( x > 0 || y > 0 ) {
+            if ( f[x][y] == 1 ) {
+                res.push_back( str1[x-1] );
+                --x;
+            } else if ( f[x][y] == 2 ) {
+                res.push_back( str2[y-1] );
+                --y;
+            } else {
+                res.push_back( str1[x-1] );
+                --x; --y;
+            }
+        }
+        reverse( res.begin(), res.end() );
+        return res;
+    }
+};
+
+另一个版本直接不存parent pointer，现场比较来反向构造
+class Solution {
+public:
+    string shortestCommonSupersequence(string str1, string str2) {
+        int m = str1.size(); int n = str2.size();
+        vector<vector<int>> dp( m+1, vector<int>( n+1, m + n) );
+        dp[0][0] = 0;
+        for ( int i = 1; i <= m; ++i ) {
+            dp[i][0] = i;
+        }
+        for ( int j = 1; j <= n; ++j ) {
+            dp[0][j] = j;
+        }
+        for ( int i = 1; i <= m; ++i ) {
+            for ( int j = 1; j <= n; ++j ) {
+                if ( str1[i-1] == str2[j-1] ) {
+                    dp[i][j] = dp[i-1][j-1] + 1;
+                } else {
+                    dp[i][j] = min( dp[i-1][j], dp[i][j-1] ) + 1;
+                }
+            }
+        }
+        string res;
+        int x = m, y = n;
+        while ( x > 0 && y > 0 ) {
+            if ( str1[x-1] == str2[y-1] ) {
+                res.push_back( str1[x-1] );
+                --x; --y;
+            } else{
+                if ( dp[x-1][y] < dp[x][y-1] ) {
+                    res.push_back( str1[x-1] );
+                    --x;
+                } else {
+                    res.push_back( str2[y-1] );
+                    --y;
+                }
+            }
+        }
+        while ( x > 0 ) res.push_back( str1[--x] );
+        while ( y > 0 ) res.push_back( str2[--y] );
+        
+        reverse( res.begin(), res.end() );
+        return res;
+    }
+};
+
+
+
+
+
