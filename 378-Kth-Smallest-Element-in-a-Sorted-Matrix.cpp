@@ -87,3 +87,41 @@ public:
         return res;        
     }
 };
+
+
+// 6/17 这道题也可以用priority_queue来做，练习一下pq的使用方法
+class Solution {
+    struct Tuple {
+        int x, y, sum;
+        Tuple ( int x, int y, int sum ) : x{x}, y{y}, sum{sum} {};
+    };
+    
+    struct myComp {
+        bool operator () ( const Tuple& lhs, const Tuple& rhs ) {
+            return lhs.sum > rhs.sum;
+        }
+    };   
+    
+public:
+    int kthSmallest(vector<vector<int>>& matrix, int k) {
+        int m = matrix.size();
+        int n = matrix[0].size();
+        vector<vector<bool>> visited( m, vector<bool>( n, false) );
+        priority_queue<Tuple, vector<Tuple>, myComp> pq;
+        pq.push( Tuple( 0, 0, matrix[0][0] ) );
+        
+        for ( int i = 0; i < k - 1; ++i ) {
+            Tuple cur = pq.top();
+            pq.pop();
+            if ( cur.x + 1 < m && visited[cur.x+1][cur.y] == false ) {
+                pq.push( Tuple( cur.x + 1, cur.y, matrix[cur.x+1][cur.y] ) );
+                visited[cur.x+1][cur.y] = true;
+            } 
+            if ( cur.y + 1 < n && visited[cur.x][cur.y+1] == false ) {
+                pq.push( Tuple( cur.x, cur.y + 1, matrix[cur.x][cur.y+1] ) );
+                visited[cur.x][cur.y+1] = true;
+            } 
+        }
+        return pq.top().sum;
+    }
+};
