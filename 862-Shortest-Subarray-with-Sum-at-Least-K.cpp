@@ -41,6 +41,35 @@ public:
         return res == n + 1 ? -1 : res;
     }
 };
+// 方法2是通过pq
+class Solution {
+public:
+    int shortestSubarray(vector<int>& A, int K) 
+    {
+        int n = A.size();
+        int sum = 0;
+        priority_queue< pair<int,int> , vector< pair<int,int> > ,greater< pair<int,int> > > pq;
+        pq.push(make_pair(0,-1));
+        int ans = INT_MAX;
+        for(int i=0;i<n;i++)
+        {
+            sum += A[i];
+            while(!pq.empty() && sum-pq.top().first>=K) 
+            // 如果sum -pq.top().first>=K，那就算后又来了某个sum1也满足，结果也不可能比这个短
+            // 所以pq.top()的潜力也就到此为止了
+            {
+                ans = min(ans,i-pq.top().second);
+                pq.pop();
+            }
+            pq.push(make_pair(sum,i));
+        }
+        if(ans==INT_MAX)
+            return -1;
+        return ans;
+    }
+    
+};
+
 
 // 单调栈方法后面会单独列一个专题
 class Solution {
