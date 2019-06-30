@@ -1,0 +1,114 @@
+这周是有机会做出四道题的，很可惜时间不够了。
+前两道题上浪费的时间比较多，第四题是一个字符串解析，这个只能慢慢练习了，
+每一道字符串解析的题目都不太一样，到目前为止找不到一个通法，只能边看边做
+
+第一题没什么好说的，暴力破解
+
+第二题浪费了太多时间，最后居然还是暴力过的，胜之不武。
+这个题是可以用Logn的方法做出来的，用到一个二叉树index上的性质，父节点在上一层的index是子节点在当前层的index再除以2
+
+class Solution {
+public:
+    vector<int> pathInZigZagTree(int label) {
+        vector<int> res;
+        int val = 1;
+        bool flag = true;
+        while ( val < label ) {
+            val = 2 * val + 1;
+            flag = !flag;
+        }
+        
+        int lo = val / 2 + 1; int hi = val;
+        
+        //找到label在最后一层出现的index
+        int index = flag ? label - lo : hi - label;
+        
+        while ( lo >= 1 ) {
+            if ( flag ) res.push_back( lo + index );
+            else {
+                res.push_back( hi - index );
+            }
+            index /= 2;
+            lo /= 2;
+            hi /= 2;
+            flag = !flag;
+        }
+        reverse( res.begin(), res.end() );
+        return res;
+    }
+};
+
+第三题是一个经典DP套路，没读懂题，题目描述那个书架上放书本的方式真是他妈的毁三观
+哪个傻逼会这么放书？
+
+class Solution {
+public:
+    int minHeightShelves(vector<vector<int>>& books, int shelf_width) {
+        int n = books.size();
+        int dp[n];
+        for ( int i = 0; i < n; ++i ) {
+            dp[i] = INT_MAX;
+            int s = 0;
+            int m = 0;
+            for ( int j = i; j >= 0; --j ) {
+                s += books[j][0];
+                if ( s > shelf_width ) break;
+                m = max( m, books[j][1] );
+                dp[i] = min( dp[i], ( j == 0 ? 0 : dp[j-1] ) + m );
+            }
+        }
+        return dp[n-1];
+    }
+};
+
+第四题其实从右往左解析比较容易一些
+记住一个套路吧，如果是操作符在前的，可以考虑从右向左
+
+class Solution {
+public:
+    bool parseBoolExpr(string exp) {
+        int n = exp.size();
+        stack<char> st;
+        char c;
+        for ( int i = n - 1; i >= 0; --i ) {
+            c = exp[i];
+            if ( c == ',' ) continue;
+            if ( c == '(' ) {
+                --i;
+                if ( exp[i] == '!' ) {
+                    char c1 = (char)( 't' + 'f' - st.top() );
+                    st.pop();
+                    st.pop();
+                    st.push( c1 );
+                } else if ( exp[i] == '&' ) {
+                    bool a = true;
+                    while ( st.top() != ')' ) {
+                        a = a && ( st.top() == 't' );
+                        st.pop();
+                    }
+                    st.pop();
+                    if ( a ) st.push('t');
+                    else st.push('f');
+                } else {
+                    bool a = false;
+                    while ( st.top() != ')' ) {
+                        a = a || ( st.top() == 't' );
+                        st.pop();
+                    }
+                    st.pop();
+                    if ( a ) st.push('t');
+                    else st.push('f');
+                }
+            } else {
+                st.push( c );
+            }
+        }
+        return st.top() == 't';
+    }
+};
+
+
+
+
+
+
