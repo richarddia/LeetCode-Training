@@ -26,7 +26,9 @@ git branch -b <new_branch_name>
 git branch -d <brach_to_be_deleted>
 git branch -D <brach_to_be_deleted>
 
+// create a new repo in git hub
 git remote add origin <URL> 
+git pull origin master --allow-unrelated-histories
 git push origin master
 
 // check alias
