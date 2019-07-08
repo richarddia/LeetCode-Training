@@ -1,3 +1,3 @@
 456 132Pattern
 767 Reorganize String 这个题其实不算难，但是做题的时候没反应过来，标记一下
-
+1040 Moving Stones Until Consecutive II
