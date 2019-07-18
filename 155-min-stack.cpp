@@ -11,13 +11,8 @@ public:
     }
     
     void push(int x) {
-        if ( st.empty() ) {
-            st.push(0);
-            mn = x;
-        } else {
-            st.push((long)x - mn);
-            mn = min(mn, (long)x);
-        }
+        st.push((long)x - mn);
+        mn = min(mn, (long)x);
     }
     
     void pop() {
