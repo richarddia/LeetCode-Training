@@ -1,0 +1,31 @@
+9/9/2019
+狗家电面
+
+写一个class，实现两个function
+
+void add(int i)
+int get();
+
+class可以接收一个int k
+
+class模拟一个数组类型的数据结构，add调用一次往数组结尾加一个数字，
+get调用一次return出数组最后面的k个数字的乘积
+
+例:
+
+k = 2
+add(1)
+add(2)
+get() -> return 2 (2*1)
+add(3) 
+get() -> return 6  (3*2)
+add(4)
+get() -> return 12 (4*3)
+
+
+
+
+
+
+
+
